@@ -14,9 +14,7 @@ public class PublicListingsController {
     }
 
     @GetMapping("/listings")
-    public List<PublicListingCardView> getListings(
-            @RequestParam(required = false) String q
-    ) {
-        return repo.findActiveListingCards(q);
+    public List<PublicListingCardView> getListings() {
+        return repo.findActiveListingCards();
     }
 }

@@ -19,5 +19,5 @@ public interface PublicListingRepository extends JpaRepository<Listing, Long> {
         WHERE l.status = 'ACTIVE'
         ORDER BY l.createdAt DESC
         """)
-    List<PublicListingCardView> findActiveListingCards(@Param("q") String q);
+    List<PublicListingCardView> findActiveListingCards();
 }

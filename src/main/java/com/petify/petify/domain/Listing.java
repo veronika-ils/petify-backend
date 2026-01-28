@@ -30,6 +30,20 @@ public class Listing {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
+    // Constructors
+    public Listing() {}
+
+    public Listing(Long ownerId, Long animalId, String status, BigDecimal price, String description) {
+        this.ownerId = ownerId;
+        this.animalId = animalId;
+        this.status = status;
+        this.price = price;
+        this.description = description;
+        this.createdAt = LocalDateTime.now();
+    }
+
+    // Getters and Setters
+
 
     public Long getListingId() {
         return listingId;

@@ -56,57 +56,6 @@ public class UserManagementController {
         }
     }
 
-    /**
-     * Get all active users
-     * GET /api/users/active
-     */
-    @GetMapping("/active")
-    public ResponseEntity<List<UserDTO>> getAllActiveUsers() {
-        List<UserDTO> users = authService.getAllActiveUsers();
-        return ResponseEntity.ok(users);
-    }
 
-    /**
-     * Update user information
-     * PUT /api/users/{userId}
-     */
-    @PutMapping("/{userId}")
-    public ResponseEntity<UserDTO> updateUser(
-            @PathVariable Long userId,
-            @RequestBody UserDTO userDTO) {
-        try {
-            UserDTO updatedUser = authService.updateUser(userId, userDTO);
-            return ResponseEntity.ok(updatedUser);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
 
-    /**
-     * Deactivate user account
-     * DELETE /api/users/{userId}
-     */
-    @DeleteMapping("/{userId}")
-    public ResponseEntity<Void> deactivateUser(@PathVariable Long userId) {
-        try {
-            authService.deactivateUser(userId);
-            return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    /**
-     * Activate user account
-     * POST /api/users/{userId}/activate
-     */
-    @PostMapping("/{userId}/activate")
-    public ResponseEntity<Void> activateUser(@PathVariable Long userId) {
-        try {
-            authService.activateUser(userId);
-            return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
 }

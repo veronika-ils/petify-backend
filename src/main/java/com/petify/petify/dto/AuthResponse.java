@@ -8,22 +8,18 @@ public class AuthResponse {
     private String email;
     private String firstName;
     private String lastName;
-    private UserType userType;
-    private String message;
 
     // Constructors
     public AuthResponse() {
     }
 
     public AuthResponse(Long userId, String username, String email, String firstName,
-                       String lastName, UserType userType, String message) {
+                       String lastName) {
         this.userId = userId;
         this.username = username;
         this.email = email;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.userType = userType;
-        this.message = message;
     }
 
     // Getters and Setters
@@ -67,19 +63,4 @@ public class AuthResponse {
         this.lastName = lastName;
     }
 
-    public UserType getUserType() {
-        return userType;
-    }
-
-    public void setUserType(UserType userType) {
-        this.userType = userType;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
 }

@@ -7,6 +7,8 @@ import com.petify.petify.dto.LoginRequest;
 import com.petify.petify.dto.SignUpRequest;
 import com.petify.petify.dto.UserDTO;
 import com.petify.petify.repo.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +19,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class AuthService {
+
+    private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -45,8 +49,7 @@ public class AuthService {
             request.getEmail(),
             passwordEncoder.encode(request.getPassword()),
             request.getFirstName(),
-            request.getLastName(),
-            UserType.CLIENT
+            request.getLastName()
         );
 
         User savedUser = userRepository.save(user);
@@ -56,9 +59,7 @@ public class AuthService {
             savedUser.getUsername(),
             savedUser.getEmail(),
             savedUser.getFirstName(),
-            savedUser.getLastName(),
-            savedUser.getUserType(),
-            "User registered successfully"
+            savedUser.getLastName()
         );
     }
 
@@ -74,56 +75,30 @@ public class AuthService {
 
         User foundUser = user.get();
 
+        // Debug logging to see foundUser details
+        logger.info("User found - ID: {}, Username: {}, Email: {}, FirstName: {}, LastName: {}",
+            foundUser.getUserId(),
+            foundUser.getUsername(),
+            foundUser.getEmail(),
+            foundUser.getFirstName(),
+            foundUser.getLastName());
+
         // Verify password
         if (!passwordEncoder.matches(request.getPassword(), foundUser.getPassword())) {
             throw new RuntimeException("Invalid username or password");
         }
 
-        // Check if user is active
-        if (!foundUser.getIsActive()) {
-            throw new RuntimeException("User account is inactive");
-        }
+        logger.info("Password verified successfully for user: {}", foundUser.getUsername());
 
         return new AuthResponse(
             foundUser.getUserId(),
             foundUser.getUsername(),
             foundUser.getEmail(),
             foundUser.getFirstName(),
-            foundUser.getLastName(),
-            foundUser.getUserType(),
-            "Login successful"
+            foundUser.getLastName()
         );
     }
 
-    /**
-     * Get all clients
-     */
-    public List<UserDTO> getAllClients() {
-        return userRepository.findByUserType(UserType.CLIENT)
-            .stream()
-            .map(this::mapToDTO)
-            .collect(Collectors.toList());
-    }
-
-    /**
-     * Get all owners
-     */
-    public List<UserDTO> getAllOwners() {
-        return userRepository.findByUserType(UserType.OWNER)
-            .stream()
-            .map(this::mapToDTO)
-            .collect(Collectors.toList());
-    }
-
-    /**
-     * Get all admins
-     */
-    public List<UserDTO> getAllAdmins() {
-        return userRepository.findByUserType(UserType.ADMIN)
-            .stream()
-            .map(this::mapToDTO)
-            .collect(Collectors.toList());
-    }
 
     /**
      * Get user by ID
@@ -153,62 +128,8 @@ public class AuthService {
             .collect(Collectors.toList());
     }
 
-    /**
-     * Get all active users
-     */
-    public List<UserDTO> getAllActiveUsers() {
-        return userRepository.findByIsActiveTrue()
-            .stream()
-            .map(this::mapToDTO)
-            .collect(Collectors.toList());
-    }
 
-    /**
-     * Update user information
-     */
-    public UserDTO updateUser(Long userId, UserDTO userDTO) {
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (userDTO.getFirstName() != null) {
-            user.setFirstName(userDTO.getFirstName());
-        }
-        if (userDTO.getLastName() != null) {
-            user.setLastName(userDTO.getLastName());
-        }
-        if (userDTO.getEmail() != null) {
-            user.setEmail(userDTO.getEmail());
-        }
-
-        user.setUpdatedAt(LocalDateTime.now());
-        User updatedUser = userRepository.save(user);
-
-        return mapToDTO(updatedUser);
-    }
-
-    /**
-     * Deactivate user account
-     */
-    public void deactivateUser(Long userId) {
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new RuntimeException("User not found"));
-
-        user.setIsActive(false);
-        user.setUpdatedAt(LocalDateTime.now());
-        userRepository.save(user);
-    }
-
-    /**
-     * Activate user account
-     */
-    public void activateUser(Long userId) {
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new RuntimeException("User not found"));
-
-        user.setIsActive(true);
-        user.setUpdatedAt(LocalDateTime.now());
-        userRepository.save(user);
-    }
 
     /**
      * Map User entity to UserDTO
@@ -220,9 +141,7 @@ public class AuthService {
             user.getEmail(),
             user.getFirstName(),
             user.getLastName(),
-            user.getUserType(),
-            user.getCreatedAt(),
-            user.getIsActive()
+            user.getCreatedAt()
         );
     }
 }

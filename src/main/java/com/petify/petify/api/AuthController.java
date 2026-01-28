@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -32,7 +33,7 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest()
-                .body(new AuthResponse(null, null, null, null, null, null, e.getMessage()));
+                    .body(new AuthResponse(null, null, null, null, null));
         }
     }
 
@@ -41,13 +42,32 @@ public class AuthController {
      * POST /api/auth/login
      */
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         try {
-            AuthResponse response = authService.login(request);
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(authService.login(request));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(new AuthResponse(null, null, null, null, null, null, e.getMessage()));
+                    .body(Map.of(
+                            "error", e.getClass().getSimpleName(),
+                            "message", e.getMessage()
+                    ));
         }
     }
+
+
+    /**
+     * Get all users
+     * GET /api/auth/users
+     */
+    @GetMapping("/users")
+    public ResponseEntity<List<UserDTO>> getAllUsers() {
+        try {
+            List<UserDTO> users = authService.getAllUsers();
+            return ResponseEntity.ok(users);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+
 }
