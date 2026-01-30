@@ -20,7 +20,7 @@ public class Listing {
     private Long animalId;
 
     @Column(nullable = false)
-    private String status;
+    private String status = "ACTIVE";
 
     @Column(nullable = false)
     private BigDecimal price;
@@ -33,12 +33,12 @@ public class Listing {
     // Constructors
     public Listing() {}
 
-    public Listing(Long ownerId, Long animalId, String status, BigDecimal price, String description) {
+    public Listing(Long ownerId, Long animalId,  BigDecimal price, String description) {
         this.ownerId = ownerId;
         this.animalId = animalId;
-        this.status = status;
         this.price = price;
         this.description = description;
+        this.status = "ACTIVE";
         this.createdAt = LocalDateTime.now();
     }
 

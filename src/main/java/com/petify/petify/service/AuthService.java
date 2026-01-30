@@ -1,6 +1,7 @@
 package com.petify.petify.service;
 
 import com.petify.petify.domain.Client;
+import com.petify.petify.domain.Owner;
 import com.petify.petify.domain.User;
 import com.petify.petify.domain.UserType;
 import com.petify.petify.dto.AuthResponse;
@@ -8,6 +9,7 @@ import com.petify.petify.dto.LoginRequest;
 import com.petify.petify.dto.SignUpRequest;
 import com.petify.petify.dto.UserDTO;
 import com.petify.petify.repo.ClientRepository;
+import com.petify.petify.repo.OwnerRepository;
 import com.petify.petify.repo.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,11 +29,14 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final ClientRepository clientRepository;
+    private final OwnerRepository ownerRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public AuthService(UserRepository userRepository, ClientRepository clientRepository, PasswordEncoder passwordEncoder) {
+    public AuthService(UserRepository userRepository, ClientRepository clientRepository,
+                      OwnerRepository ownerRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.clientRepository = clientRepository;
+        this.ownerRepository = ownerRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -108,6 +113,12 @@ public class AuthService {
         }
 
         logger.info("Password verified successfully for user: {}", foundUser.getUsername());
+
+        // Determine user type by checking if they are an owner
+        String userType = "CLIENT";
+        if (ownerRepository.findByUserId(foundUser.getUserId()).isPresent()) {
+            userType = "OWNER";
+        }
 
         return new AuthResponse(
             foundUser.getUserId(),
