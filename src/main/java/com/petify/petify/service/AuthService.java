@@ -1,16 +1,19 @@
 package com.petify.petify.service;
 
+import com.petify.petify.domain.Client;
 import com.petify.petify.domain.User;
 import com.petify.petify.domain.UserType;
 import com.petify.petify.dto.AuthResponse;
 import com.petify.petify.dto.LoginRequest;
 import com.petify.petify.dto.SignUpRequest;
 import com.petify.petify.dto.UserDTO;
+import com.petify.petify.repo.ClientRepository;
 import com.petify.petify.repo.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,17 +26,21 @@ public class AuthService {
     private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
 
     private final UserRepository userRepository;
+    private final ClientRepository clientRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public AuthService(UserRepository userRepository, ClientRepository clientRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.clientRepository = clientRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
     /**
      * Register a new user as CLIENT
      * All new users are registered as CLIENT by default
+     * Creates both a User and a Client row in the database
      */
+    @Transactional
     public AuthResponse signUp(SignUpRequest request) {
         // Check if username or email already exists
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
@@ -42,6 +49,7 @@ public class AuthService {
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new RuntimeException("Email already exists");
         }
+        logger.error(">>> SIGNUP METHOD HIT <<<");
 
         // Create new user as CLIENT
         User user = new User(
@@ -53,6 +61,17 @@ public class AuthService {
         );
 
         User savedUser = userRepository.save(user);
+        logger.info("User saved successfully - ID: {}, Username: {}", savedUser.getUserId(), savedUser.getUsername());
+
+        try {
+            // Create a corresponding Client row
+            Client client = new Client(savedUser);
+            Client savedClient = clientRepository.save(client);
+            logger.info("Client saved successfully - Client linked to User ID: {}", savedClient.getUser().getUserId());
+        } catch (Exception e) {
+            logger.error("Failed to create client for user ID: {}", savedUser.getUserId(), e);
+            throw new RuntimeException("Failed to create client profile: " + e.getMessage(), e);
+        }
 
         return new AuthResponse(
             savedUser.getUserId(),

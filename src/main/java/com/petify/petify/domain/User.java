@@ -30,6 +30,9 @@ public class User {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Client client;
+
     public User() {}
 
     public User(String username, String email, String password, String firstName,
@@ -100,4 +103,14 @@ public class User {
         this.createdAt = createdAt;
     }
 
+    public Client getClient() {
+        return client;
+    }
+
+    public void setClient(Client client) {
+        this.client = client;
+        if (client != null) {
+            client.setUser(this);
+        }
+    }
 }

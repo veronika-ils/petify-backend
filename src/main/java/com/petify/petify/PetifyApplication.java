@@ -16,7 +16,7 @@ public class PetifyApplication {
 
     private static void loadEnvFile() {
         try {
-            String envPath = ".env";
+            String envPath = ".env.properties";
             if (Files.exists(Paths.get(envPath))) {
                 Files.lines(Paths.get(envPath))
                     .filter(line -> !line.trim().isEmpty() && !line.trim().startsWith("#"))
