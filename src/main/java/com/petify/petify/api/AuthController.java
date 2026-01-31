@@ -33,7 +33,7 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest()
-                    .body(new AuthResponse(null, null, null, null, null));
+                    .body(new AuthResponse(null, null, null, null, null,null));
         }
     }
 

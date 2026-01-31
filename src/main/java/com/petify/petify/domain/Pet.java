@@ -28,8 +28,6 @@ public class Pet {
     @JoinColumn(name = "owner_id", nullable = false)
     private Owner owner;
 
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
 
     // Constructors
     public Pet() {}
@@ -41,7 +39,7 @@ public class Pet {
         this.age = age;
         this.description = description;
         this.owner = owner;
-        this.createdAt = LocalDateTime.now();
+
     }
 
     // Getters and Setters
@@ -101,11 +99,4 @@ public class Pet {
         this.owner = owner;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
 }

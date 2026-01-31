@@ -1,6 +1,7 @@
 package com.petify.petify.api;
 
 import com.petify.petify.domain.Pet;
+import com.petify.petify.dto.AnimalResponseDTO;
 import com.petify.petify.repo.PetRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,11 +26,17 @@ public class UsersController {
     @GetMapping("/{userId}/pets")
     public ResponseEntity<?> getUserPets(@PathVariable Long userId) {
         try {
-            List<Pet> pets = petRepository.findByOwnerId(userId);
+            List<AnimalResponseDTO> pets = petRepository.findByOwnerUserId(userId)
+                    .stream()
+                    .map(AnimalResponseDTO::new)
+                    .toList();
+
             return ResponseEntity.ok(pets);
+
         } catch (Exception e) {
             return ResponseEntity.status(500)
-                .body(Map.of("error", "Failed to retrieve pets: " + e.getMessage()));
+                    .body(Map.of("error", "Failed to retrieve pets: " + e.getMessage()));
         }
     }
+
 }

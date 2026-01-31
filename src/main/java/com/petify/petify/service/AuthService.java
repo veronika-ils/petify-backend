@@ -83,7 +83,8 @@ public class AuthService {
             savedUser.getUsername(),
             savedUser.getEmail(),
             savedUser.getFirstName(),
-            savedUser.getLastName()
+            savedUser.getLastName(),
+            UserType.CLIENT
         );
     }
 
@@ -114,10 +115,10 @@ public class AuthService {
 
         logger.info("Password verified successfully for user: {}", foundUser.getUsername());
 
-        // Determine user type by checking if they are an owner
-        String userType = "CLIENT";
-        if (ownerRepository.findByUserId(foundUser.getUserId()).isPresent()) {
-            userType = "OWNER";
+        // Determine user type by checking if userId exists in owners table
+        UserType userType = UserType.CLIENT;
+        if (ownerRepository.existsById(foundUser.getUserId())) {
+            userType = UserType.OWNER;
         }
 
         return new AuthResponse(
@@ -125,7 +126,8 @@ public class AuthService {
             foundUser.getUsername(),
             foundUser.getEmail(),
             foundUser.getFirstName(),
-            foundUser.getLastName()
+            foundUser.getLastName(),
+            userType
         );
     }
 

@@ -12,6 +12,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.http.HttpMethod;
+
 
 import java.util.Arrays;
 
@@ -47,8 +49,26 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        // Public endpoints - no authentication required
                         .requestMatchers("/api/public/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
+
+                        .requestMatchers(HttpMethod.GET, "/api/users/*/pets").permitAll()
+
+                        // Public listings endpoints
+                        .requestMatchers(HttpMethod.GET, "/api/listings/active").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/listings/*").permitAll()
+
+                        // Protected listings endpoints
+                        .requestMatchers(HttpMethod.GET, "/api/listings/my-listings").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/listings").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/api/listings/*").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/listings/*").authenticated()
+
+                        // Protected user endpoints
+                        .requestMatchers(HttpMethod.GET, "/api/users/*").authenticated()
+
+                        // All other requests require authentication
                         .anyRequest().authenticated()
                 )
                 .formLogin(Customizer.withDefaults());
