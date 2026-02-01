@@ -13,7 +13,7 @@ public interface PublicListingRepository extends JpaRepository<Listing, Long> {
           l.description,
           l.createdAt,
           l.animalId,
-          l.ownerId
+          l.owner.userId
         )
         FROM Listing l
         WHERE l.status = 'ACTIVE'

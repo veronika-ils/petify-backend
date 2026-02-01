@@ -38,9 +38,9 @@ public class ListingService {
 
         logger.info("Creating listing for owner ID: {}", userId);
 
-        // Create new listing
+        // Create new listing with Owner object
         Listing listing = new Listing(
-            owner.getUserId(),
+            owner,
             request.getAnimalId(),
             request.getPrice(),
             request.getDescription()
@@ -57,8 +57,11 @@ public class ListingService {
     /**
      * Get all listings for a specific owner
      */
-    public List<ListingDTO> getListingsByOwner(Long ownerId) {
-        return listingRepository.findByOwnerId(ownerId)
+    public List<ListingDTO> getListingsByOwner(Long userId) {
+        Owner owner = ownerRepository.findByUserId(userId)
+            .orElseThrow(() -> new RuntimeException("Owner not found"));
+
+        return listingRepository.findByOwner(owner)
             .stream()
             .map(this::mapToDTO)
             .collect(Collectors.toList());

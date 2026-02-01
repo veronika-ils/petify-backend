@@ -13,8 +13,9 @@ public class Listing {
     @Column(name = "listing_id")
     private Long listingId;
 
-    @Column(name = "owner_id", nullable = false)
-    private Long ownerId;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "owner_id", nullable = false)
+    private Owner owner;
 
     @Column(name = "animal_id", nullable = false)
     private Long animalId;
@@ -33,8 +34,8 @@ public class Listing {
     // Constructors
     public Listing() {}
 
-    public Listing(Long ownerId, Long animalId,  BigDecimal price, String description) {
-        this.ownerId = ownerId;
+    public Listing(Owner owner, Long animalId, BigDecimal price, String description) {
+        this.owner = owner;
         this.animalId = animalId;
         this.price = price;
         this.description = description;
@@ -53,12 +54,16 @@ public class Listing {
         this.listingId = listingId;
     }
 
-    public Long getOwnerId() {
-        return ownerId;
+    public Owner getOwner() {
+        return owner;
     }
 
-    public void setOwnerId(Long ownerId) {
-        this.ownerId = ownerId;
+    public void setOwner(Owner owner) {
+        this.owner = owner;
+    }
+
+    public Long getOwnerId() {
+        return owner != null ? owner.getUserId() : null;
     }
 
     public Long getAnimalId() {

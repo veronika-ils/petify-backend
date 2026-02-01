@@ -61,7 +61,7 @@ public class SecurityConfig {
 
                         // Protected listings endpoints
                         .requestMatchers(HttpMethod.GET, "/api/listings/my-listings").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/api/listings").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/listings").permitAll()
                         .requestMatchers(HttpMethod.PATCH, "/api/listings/*").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/listings/*").authenticated()
 
