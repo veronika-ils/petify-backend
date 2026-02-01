@@ -60,13 +60,20 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/listings/*").permitAll()
 
                         // Protected listings endpoints
-                        .requestMatchers(HttpMethod.GET, "/api/listings/my-listings").authenticated()
+                        //.requestMatchers(HttpMethod.GET, "/api/listings/my-listings").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/listings").permitAll()
                         .requestMatchers(HttpMethod.PATCH, "/api/listings/*").authenticated()
-                        .requestMatchers(HttpMethod.DELETE, "/api/listings/*").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/listings/*").permitAll()
 
                         // Protected user endpoints
                         .requestMatchers(HttpMethod.GET, "/api/users/*").authenticated()
+
+                        // Favorites endpoints - protected
+                        .requestMatchers(HttpMethod.POST, "/api/favorites/**").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/api/favorites/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/favorites").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/favorites/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/listings/my-listings/*").permitAll()
 
                         // All other requests require authentication
                         .anyRequest().authenticated()
