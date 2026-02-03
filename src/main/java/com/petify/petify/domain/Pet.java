@@ -1,7 +1,7 @@
 package com.petify.petify.domain;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "animals")
@@ -16,13 +16,24 @@ public class Pet {
     private String name;
 
     @Column(nullable = false)
+    private String sex;
+
+    @Column(name = "date_of_birth")
+    private LocalDate dateOfBirth;
+
+    @Column(name = "photo_url")
+    private String photoUrl;
+
+    @Column(nullable = false)
+    private String type;
+
+    @Column(nullable = false)
     private String species;
 
     private String breed;
 
-    private Integer age;
-
-    private String description;
+    @Column(name = "located_name")
+    private String locatedName;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "owner_id", nullable = false)
@@ -32,14 +43,16 @@ public class Pet {
     // Constructors
     public Pet() {}
 
-    public Pet(String name, String species, String breed, Integer age, String description, Owner owner) {
+    public Pet(String name, String sex, LocalDate dateOfBirth, String photoUrl, String type, String species, String breed, String locatedName, Owner owner) {
         this.name = name;
+        this.sex = sex;
+        this.dateOfBirth = dateOfBirth;
+        this.photoUrl = photoUrl;
+        this.type = type;
         this.species = species;
         this.breed = breed;
-        this.age = age;
-        this.description = description;
+        this.locatedName = locatedName;
         this.owner = owner;
-
     }
 
     // Getters and Setters
@@ -59,6 +72,38 @@ public class Pet {
         this.name = name;
     }
 
+    public String getSex() {
+        return sex;
+    }
+
+    public void setSex(String sex) {
+        this.sex = sex;
+    }
+
+    public LocalDate getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public void setDateOfBirth(LocalDate dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
+    }
+
+    public String getPhotoUrl() {
+        return photoUrl;
+    }
+
+    public void setPhotoUrl(String photoUrl) {
+        this.photoUrl = photoUrl;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
     public String getSpecies() {
         return species;
     }
@@ -75,20 +120,12 @@ public class Pet {
         this.breed = breed;
     }
 
-    public Integer getAge() {
-        return age;
+    public String getLocatedName() {
+        return locatedName;
     }
 
-    public void setAge(Integer age) {
-        this.age = age;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
+    public void setLocatedName(String locatedName) {
+        this.locatedName = locatedName;
     }
 
     public Owner getOwner() {
@@ -100,3 +137,6 @@ public class Pet {
     }
 
 }
+
+
+

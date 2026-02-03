@@ -54,6 +54,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
 
                         .requestMatchers(HttpMethod.GET, "/api/users/*/pets").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/users/*/pets").permitAll()
 
                         // Public listings endpoints
                         .requestMatchers(HttpMethod.GET, "/api/listings/active").permitAll()
