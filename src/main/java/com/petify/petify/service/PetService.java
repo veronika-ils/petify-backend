@@ -121,4 +121,22 @@ public class PetService {
 
         return result;
     }
+
+    /**
+     * Get pet details by ID
+     * @param petId the pet/animal ID
+     * @return the pet details as DTO
+     */
+    public AnimalResponseDTO getPetById(Long petId) {
+        logger.info("Fetching pet with ID: {}", petId);
+
+        Pet pet = petRepository.findById(petId)
+                .orElseThrow(() -> {
+                    logger.error("Pet not found with ID: {}", petId);
+                    return new RuntimeException("Pet not found");
+                });
+
+        logger.info("Pet found: {}", pet.getName());
+        return new AnimalResponseDTO(pet);
+    }
 }
