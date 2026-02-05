@@ -67,7 +67,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/listings/*").permitAll()
 
                         // Protected user endpoints
-                        .requestMatchers(HttpMethod.GET, "/api/users/*").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/users/*").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/owner/*").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/reviews/*").permitAll()
 
                         // Favorites endpoints - protected
                         .requestMatchers(HttpMethod.POST, "/api/favorites/**").permitAll()

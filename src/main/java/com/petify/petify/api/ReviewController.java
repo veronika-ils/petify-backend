@@ -1,0 +1,108 @@
+package com.petify.petify.api;
+
+import com.petify.petify.dto.CreateReviewRequest;
+import com.petify.petify.dto.ReviewDTO;
+import com.petify.petify.service.ReviewService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@RequestMapping("/api/reviews")
+public class ReviewController {
+
+    private static final Logger logger = LoggerFactory.getLogger(ReviewController.class);
+
+    private final ReviewService reviewService;
+
+    public ReviewController(ReviewService reviewService) {
+        this.reviewService = reviewService;
+    }
+
+    /**
+     * Create or update a review for a user
+     * POST /api/reviews/{targetUserId}
+     * @param targetUserId the user ID being reviewed
+     * @param request the review request
+     * @return the created/updated review
+     */
+    @PostMapping("/{targetUserId}")
+    public ResponseEntity<?> createOrUpdateReview(
+            @PathVariable Long targetUserId,
+            @RequestHeader("X-User-Id") Long userId,
+            @RequestBody CreateReviewRequest request) {
+        try {
+            logger.info("Creating/updating review from user {} for user {}", userId, targetUserId);
+
+            // Validate request
+            if (request.getRating() == null || request.getRating() < 1 || request.getRating() > 5) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "Rating must be between 1 and 5"));
+            }
+
+            ReviewDTO review = reviewService.createOrUpdateReview(userId, targetUserId, request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(review);
+        } catch (RuntimeException e) {
+            logger.error("Error creating/updating review: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            logger.error("Unexpected error: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to create/update review: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Get all reviews for a user
+     * GET /api/reviews/{targetUserId}
+     * @param targetUserId the user ID being reviewed
+     * @return list of reviews
+     */
+    @GetMapping("/{targetUserId}")
+    public ResponseEntity<?> getReviewsByUser(@PathVariable Long targetUserId) {
+        try {
+            logger.info("Fetching reviews for user {}", targetUserId);
+            List<ReviewDTO> reviews = reviewService.getReviewsByUser(targetUserId);
+            return ResponseEntity.ok(reviews);
+        } catch (RuntimeException e) {
+            logger.error("Error fetching reviews: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            logger.error("Unexpected error: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to fetch reviews: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Delete a review
+     * DELETE /api/reviews/{reviewId}
+     * @param reviewId the review ID to delete
+     * @return success message
+     */
+    @DeleteMapping("/{reviewId}")
+    public ResponseEntity<?> deleteReview(
+            @PathVariable Long reviewId,
+            @RequestHeader("X-User-Id") Long userId) {
+        try {
+            logger.info("Deleting review {} by user {}", reviewId, userId);
+            reviewService.deleteReview(reviewId, userId);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            logger.error("Error deleting review: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            logger.error("Unexpected error: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to delete review: " + e.getMessage()));
+        }
+    }
+}
