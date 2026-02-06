@@ -25,19 +25,19 @@ public class ReviewController {
     }
 
     /**
-     * Create or update a review for a user
+     * Create a new review for a user
      * POST /api/reviews/{targetUserId}
      * @param targetUserId the user ID being reviewed
      * @param request the review request
-     * @return the created/updated review
+     * @return the created review
      */
     @PostMapping("/{targetUserId}")
-    public ResponseEntity<?> createOrUpdateReview(
+    public ResponseEntity<?> createReview(
             @PathVariable Long targetUserId,
             @RequestHeader("X-User-Id") Long userId,
             @RequestBody CreateReviewRequest request) {
         try {
-            logger.info("Creating/updating review from user {} for user {}", userId, targetUserId);
+            logger.info("Creating review from user {} for user {}", userId, targetUserId);
 
             // Validate request
             if (request.getRating() == null || request.getRating() < 1 || request.getRating() > 5) {
@@ -45,16 +45,16 @@ public class ReviewController {
                         .body(Map.of("error", "Rating must be between 1 and 5"));
             }
 
-            ReviewDTO review = reviewService.createOrUpdateReview(userId, targetUserId, request);
+            ReviewDTO review = reviewService.createReview(userId, targetUserId, request);
             return ResponseEntity.status(HttpStatus.CREATED).body(review);
         } catch (RuntimeException e) {
-            logger.error("Error creating/updating review: {}", e.getMessage());
+            logger.error("Error creating review: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
             logger.error("Unexpected error: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to create/update review: " + e.getMessage()));
+                    .body(Map.of("error", "Failed to create review: " + e.getMessage()));
         }
     }
 
