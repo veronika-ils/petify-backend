@@ -70,6 +70,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/users/*").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/owner/*").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/reviews/*").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/pets/*").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/reviews/*").permitAll()
 
                         // Favorites endpoints - protected
