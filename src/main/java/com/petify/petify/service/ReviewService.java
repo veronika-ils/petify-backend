@@ -71,14 +71,24 @@ public class ReviewService {
                 });
         logger.info(" Target user found: {} ({})", targetUser.getUsername(), targetUser.getUserId());
 
-        // Check if review already exists
+        // Check if review already exists and is not deleted
         logger.info("Checking if reviewer {} has already reviewed user {}", reviewerId, targetUserId);
-        userReviewRepository.findByReviewReviewerUserIdAndTargetUserId(reviewerId, targetUserId)
-                .ifPresent(ur -> {
-                    logger.error(" User {} has already reviewed user {}", reviewerId, targetUserId);
-                    throw new RuntimeException("You have already reviewed this user");
-                });
-        logger.info(" No existing review found - safe to create new review");
+        var existingReview = userReviewRepository.findTopByReviewReviewerUserIdAndTargetUserIdAndReviewIsDeletedFalseOrderByReviewCreatedAtDesc(reviewerId, targetUserId);
+
+        if (existingReview.isPresent()) {
+            Review existingReviewEntity = existingReview.get().getReview();
+            logger.info("Found existing review with ID: {}", existingReviewEntity.getReviewId());
+            logger.info("Existing review isDeleted status: {}", existingReviewEntity.getIsDeleted());
+
+            if (!existingReviewEntity.getIsDeleted()) {
+                logger.error("❌ User {} has already reviewed user {} and review is NOT deleted", reviewerId, targetUserId);
+                throw new RuntimeException("You have already reviewed this user");
+            } else {
+                logger.info("✅ User {} has a deleted review for user {} - can create a new one", reviewerId, targetUserId);
+            }
+        } else {
+            logger.info("✅ No existing review found - safe to create new review");
+        }
 
         // Create Review entity
         logger.info("Creating Review entity...");
@@ -166,13 +176,13 @@ public class ReviewService {
     }
 
     /**
-     * Delete a review
+     * Delete a review (soft delete - marks as deleted but keeps the record)
      * @param reviewId the review ID
      * @param userId the user ID of the person deleting (must be reviewer)
      */
     @Transactional
     public void deleteReview(Long reviewId, Long userId) {
-        logger.info("=== START deleteReview ===");
+        logger.info("=== START deleteReview (SOFT DELETE) ===");
         logger.info("Review ID: {}", reviewId);
         logger.info("User ID: {}", userId);
 
@@ -193,21 +203,12 @@ public class ReviewService {
         }
         logger.info("✅ User {} is authorized to delete this review", userId);
 
-        // Delete user_review entry first (due to FK constraint)
-        logger.info("Deleting UserReview entry for review ID: {}", reviewId);
-        UserReview userReview = userReviewRepository.findById(reviewId).orElse(null);
-        if (userReview != null) {
-            logger.info("✅ Found UserReview entry, deleting...");
-            userReviewRepository.delete(userReview);
-            logger.info("✅ UserReview deleted");
-        } else {
-            logger.warn("⚠️  No UserReview entry found for review ID: {}", reviewId);
-        }
-
-        // Delete review
-        logger.info("Deleting Review with ID: {}", reviewId);
-        reviewRepository.delete(review);
-        logger.info("✅ Review deleted successfully");
+        // Soft delete: mark as deleted instead of physically removing
+        logger.info("Marking review as deleted (soft delete)...");
+        review.setIsDeleted(true);
+        review.setUpdatedAt(LocalDateTime.now());
+        reviewRepository.save(review);
+        logger.info("✅ Review marked as deleted successfully (is_deleted = true)");
 
         logger.info("=== END deleteReview - SUCCESS ===");
     }

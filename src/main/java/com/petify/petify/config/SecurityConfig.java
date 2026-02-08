@@ -79,6 +79,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/favorites").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/favorites/**").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/listings/my-listings/*").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/api/reviews/**").permitAll()
 
                         // All other requests require authentication
                         .anyRequest().authenticated()

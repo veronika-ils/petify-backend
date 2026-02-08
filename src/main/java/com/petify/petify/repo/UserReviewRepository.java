@@ -22,7 +22,12 @@ public interface UserReviewRepository extends JpaRepository<UserReview, Long> {
         join ur.review r
         join fetch r.reviewer
         where ur.targetUserId = :targetUserId
+        and r.isDeleted = false
         order by r.createdAt desc
     """)
     List<Review> findReviewsForTargetUser(@Param("targetUserId") Long targetUserId);
+    Optional<UserReview> findTopByReviewReviewerUserIdAndTargetUserIdAndReviewIsDeletedFalseOrderByReviewCreatedAtDesc(
+            Long reviewerId, Long targetUserId
+    );
+
 }

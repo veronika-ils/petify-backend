@@ -208,6 +208,8 @@ CREATE TABLE reviews (
                          rating       INT        NOT NULL,
                          comment      TEXT,
                          created_at   TIMESTAMP  NOT NULL DEFAULT NOW(),
+                         updated_at   TIMESTAMP,
+                         is_deleted   BOOLEAN    NOT NULL DEFAULT FALSE,
                          CONSTRAINT reviews_PK PRIMARY KEY (review_id),
                          CONSTRAINT reviews_reviewer_FK FOREIGN KEY (reviewer_id)
                              REFERENCES clients(user_id)
