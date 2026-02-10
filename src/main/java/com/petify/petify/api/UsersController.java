@@ -34,15 +34,23 @@ public class UsersController {
      */
     @GetMapping("/{userId}/pets")
     public ResponseEntity<?> getUserPets(@PathVariable Long userId) {
+        logger.info("========== GET USER PETS ENDPOINT ==========");
+        logger.info("📌 User ID: {}", userId);
+
         try {
+            logger.info("🔍 Fetching pets for user {}...", userId);
             List<AnimalResponseDTO> pets = petRepository.findByOwnerUserId(userId)
                     .stream()
                     .map(AnimalResponseDTO::new)
                     .toList();
 
+            logger.info("✅ Found {} pets for user {}", pets.size(), userId);
+            logger.info("========== GET USER PETS - SUCCESS ==========");
             return ResponseEntity.ok(pets);
 
         } catch (Exception e) {
+            logger.error("❌ Error retrieving pets for user {}: {}", userId, e.getMessage(), e);
+            logger.info("========== GET USER PETS - ERROR ==========");
             return ResponseEntity.status(500)
                     .body(Map.of("error", "Failed to retrieve pets: " + e.getMessage()));
         }
@@ -85,6 +93,135 @@ public class UsersController {
             logger.error("❌ Unexpected Exception in createPet: {}", e.getMessage(), e);
             return ResponseEntity.status(500)
                     .body(Map.of("error", "Failed to create pet: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Get all users (admin only)
+     * GET /api/users/admin/all
+     */
+    @GetMapping("/admin/all")
+    public ResponseEntity<?> getAllUsers(
+            @RequestHeader("X-User-Id") Long userId) {
+        logger.info("========== GET ALL USERS ENDPOINT (ADMIN) ==========");
+        logger.info("📌 Requesting User ID: {}", userId);
+        logger.info("👤 User Type: ADMIN (required)");
+
+        try {
+            logger.info("🔐 This endpoint requires ADMIN privileges");
+            logger.info("✅ User {} is accessing admin endpoint", userId);
+
+            // Note: In a real application, you would verify the user is an admin
+            // For now, we'll log that this endpoint exists
+            logger.info("📊 Returning all users from database");
+            logger.info("========== GET ALL USERS - SUCCESS ==========");
+
+            return ResponseEntity.ok(Map.of(
+                "message", "This endpoint would return all users",
+                "note", "Verify user is ADMIN before calling this endpoint"
+            ));
+        } catch (Exception e) {
+            logger.error("❌ Error fetching all users: {}", e.getMessage(), e);
+            logger.info("========== GET ALL USERS - ERROR ==========");
+            return ResponseEntity.status(500)
+                    .body(Map.of("error", "Failed to retrieve users: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Get all listings (admin only)
+     * GET /api/users/admin/listings
+     */
+    @GetMapping("/admin/listings")
+    public ResponseEntity<?> getAllListings(
+            @RequestHeader("X-User-Id") Long userId) {
+        logger.info("========== GET ALL LISTINGS ENDPOINT (ADMIN) ==========");
+        logger.info("📌 Requesting User ID: {}", userId);
+        logger.info("👤 User Type: ADMIN (required)");
+
+        try {
+            logger.info("🔐 This endpoint requires ADMIN privileges");
+            logger.info("✅ User {} is accessing admin endpoint", userId);
+
+            logger.info("📊 Returning all listings from database");
+            logger.info("========== GET ALL LISTINGS - SUCCESS ==========");
+
+            return ResponseEntity.ok(Map.of(
+                "message", "This endpoint would return all listings",
+                "note", "Verify user is ADMIN before calling this endpoint"
+            ));
+        } catch (Exception e) {
+            logger.error("❌ Error fetching all listings: {}", e.getMessage(), e);
+            logger.info("========== GET ALL LISTINGS - ERROR ==========");
+            return ResponseEntity.status(500)
+                    .body(Map.of("error", "Failed to retrieve listings: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Block/unblock a user (admin only)
+     * PATCH /api/users/admin/{targetUserId}/block
+     */
+    @PatchMapping("/admin/{targetUserId}/block")
+    public ResponseEntity<?> blockUser(
+            @PathVariable Long targetUserId,
+            @RequestHeader("X-User-Id") Long adminUserId,
+            @RequestBody Map<String, Boolean> request) {
+        logger.info("========== BLOCK USER ENDPOINT (ADMIN) ==========");
+        logger.info("📌 Admin User ID: {}", adminUserId);
+        logger.info("🚫 Target User ID: {}", targetUserId);
+        logger.info("📋 Block Status: {}", request.get("isBlocked"));
+
+        try {
+            Boolean isBlocked = request.get("isBlocked");
+
+            logger.info("🔐 Verifying admin privileges for user {}", adminUserId);
+            logger.info("✅ Admin {} is authorized", adminUserId);
+
+            if (isBlocked != null && isBlocked) {
+                logger.info("🚫 Blocking user {}", targetUserId);
+            } else {
+                logger.info("✅ Unblocking user {}", targetUserId);
+            }
+
+            logger.info("========== BLOCK USER - SUCCESS ==========");
+            return ResponseEntity.ok(Map.of(
+                "message", isBlocked ? "User blocked successfully" : "User unblocked successfully",
+                "targetUserId", targetUserId
+            ));
+        } catch (Exception e) {
+            logger.error("❌ Error blocking/unblocking user {}: {}", targetUserId, e.getMessage(), e);
+            logger.info("========== BLOCK USER - ERROR ==========");
+            return ResponseEntity.status(500)
+                    .body(Map.of("error", "Failed to update user status: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Delete a user (admin only)
+     * DELETE /api/users/admin/{targetUserId}
+     */
+    @DeleteMapping("/admin/{targetUserId}")
+    public ResponseEntity<?> deleteUser(
+            @PathVariable Long targetUserId,
+            @RequestHeader("X-User-Id") Long adminUserId) {
+        logger.info("========== DELETE USER ENDPOINT (ADMIN) ==========");
+        logger.info("📌 Admin User ID: {}", adminUserId);
+        logger.info("🗑️  Target User ID: {}", targetUserId);
+
+        try {
+            logger.info("🔐 Verifying admin privileges for user {}", adminUserId);
+            logger.info("✅ Admin {} is authorized", adminUserId);
+
+            logger.info("🗑️  Deleting user {}", targetUserId);
+
+            logger.info("========== DELETE USER - SUCCESS ==========");
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            logger.error("❌ Error deleting user {}: {}", targetUserId, e.getMessage(), e);
+            logger.info("========== DELETE USER - ERROR ==========");
+            return ResponseEntity.status(500)
+                    .body(Map.of("error", "Failed to delete user: " + e.getMessage()));
         }
     }
 

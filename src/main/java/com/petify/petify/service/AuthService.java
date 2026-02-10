@@ -8,6 +8,7 @@ import com.petify.petify.dto.AuthResponse;
 import com.petify.petify.dto.LoginRequest;
 import com.petify.petify.dto.SignUpRequest;
 import com.petify.petify.dto.UserDTO;
+import com.petify.petify.repo.AdminRepository;
 import com.petify.petify.repo.ClientRepository;
 import com.petify.petify.repo.OwnerRepository;
 import com.petify.petify.repo.UserRepository;
@@ -30,13 +31,16 @@ public class AuthService {
     private final UserRepository userRepository;
     private final ClientRepository clientRepository;
     private final OwnerRepository ownerRepository;
+    private final AdminRepository adminRepository;
     private final PasswordEncoder passwordEncoder;
 
     public AuthService(UserRepository userRepository, ClientRepository clientRepository,
-                      OwnerRepository ownerRepository, PasswordEncoder passwordEncoder) {
+                      OwnerRepository ownerRepository, AdminRepository adminRepository,
+                      PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.clientRepository = clientRepository;
         this.ownerRepository = ownerRepository;
+        this.adminRepository = adminRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -115,10 +119,17 @@ public class AuthService {
 
         logger.info("Password verified successfully for user: {}", foundUser.getUsername());
 
-        // Determine user type by checking if userId exists in owners table
+        // Determine user type by checking tables in order: ADMIN -> OWNER -> CLIENT
         UserType userType = UserType.CLIENT;
-        if (ownerRepository.existsById(foundUser.getUserId())) {
+
+        if (adminRepository.existsById(foundUser.getUserId())) {
+            userType = UserType.ADMIN;
+            logger.info(" User is ADMIN");
+        } else if (ownerRepository.existsById(foundUser.getUserId())) {
             userType = UserType.OWNER;
+            logger.info(" User is OWNER");
+        } else {
+            logger.info(" User is CLIENT");
         }
 
         return new AuthResponse(
