@@ -34,7 +34,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT","PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
 
@@ -63,8 +63,11 @@ public class SecurityConfig {
                         // Protected listings endpoints
                         //.requestMatchers(HttpMethod.GET, "/api/listings/my-listings").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/listings").permitAll()
-                        .requestMatchers(HttpMethod.PATCH, "/api/listings/*").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/api/listings/*").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/api/listings/*").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/api/listings/*").permitAll()
+                        .requestMatchers(HttpMethod.PATCH, "/api/listings/*/status").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/api/listings/*/status").permitAll()
 
                         // Protected user endpoints
                         .requestMatchers(HttpMethod.GET, "/api/users/*").permitAll()

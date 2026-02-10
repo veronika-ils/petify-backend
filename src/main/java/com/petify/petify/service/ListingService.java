@@ -91,18 +91,35 @@ public class ListingService {
      */
     @Transactional
     public ListingDTO updateListingStatus(Long listingId, String status, Long userId) {
+        logger.info("=== START UPDATE LISTING STATUS ===");
+        logger.info("📌 Listing ID: {}", listingId);
+        logger.info("👤 User ID: {}", userId);
+        logger.info("🔄 New Status: {}", status);
+
+        logger.info("🔍 Fetching listing with ID: {}", listingId);
         Listing listing = listingRepository.findById(listingId)
-            .orElseThrow(() -> new RuntimeException("Listing not found"));
+            .orElseThrow(() -> {
+                logger.error("❌ Listing not found with ID: {}", listingId);
+                return new RuntimeException("Listing not found");
+            });
+        logger.info("✅ Listing found - Owner ID: {}, Current Status: {}", listing.getOwnerId(), listing.getStatus());
 
         // Verify owner
+        logger.info("🔐 Verifying ownership - Listing Owner: {}, Requesting User: {}", listing.getOwnerId(), userId);
         if (!listing.getOwnerId().equals(userId)) {
+            logger.error("❌ User {} is not authorized to update listing {}. Owner is {}", userId, listingId, listing.getOwnerId());
             throw new RuntimeException("You can only update your own listings");
         }
+        logger.info("✅ User {} is authorized to update this listing", userId);
 
+        logger.info("📝 Changing status from {} to {}", listing.getStatus(), status);
         listing.setStatus(status);
         Listing updatedListing = listingRepository.save(listing);
 
-        logger.info("Listing status updated - ID: {}, New Status: {}", listingId, status);
+        logger.info("✅ Listing status updated successfully");
+        logger.info("📊 Updated Listing - ID: {}, Owner: {}, New Status: {}",
+            updatedListing.getListingId(), updatedListing.getOwnerId(), updatedListing.getStatus());
+        logger.info("=== END UPDATE LISTING STATUS - SUCCESS ===");
 
         return mapToDTO(updatedListing);
     }
