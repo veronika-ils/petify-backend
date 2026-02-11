@@ -1,9 +1,15 @@
 package com.petify.petify.api;
 
 import com.petify.petify.domain.Pet;
+import com.petify.petify.domain.User;
 import com.petify.petify.dto.AnimalResponseDTO;
 import com.petify.petify.dto.CreatePetRequest;
+import com.petify.petify.dto.ListingDTO;
+import com.petify.petify.dto.UserDTO;
+import com.petify.petify.repo.ListingRepository;
 import com.petify.petify.repo.PetRepository;
+import com.petify.petify.repo.UserRepository;
+import com.petify.petify.service.ListingService;
 import com.petify.petify.service.PetService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,10 +28,14 @@ public class UsersController {
 
     private final PetRepository petRepository;
     private final PetService petService;
+    private final ListingRepository listingRepository;
+    private final UserRepository userRepository;
 
-    public UsersController(PetRepository petRepository, PetService petService) {
+    public UsersController(PetRepository petRepository, PetService petService, ListingRepository listingRepository, UserRepository userRepository) {
         this.petRepository = petRepository;
         this.petService = petService;
+        this.listingRepository = listingRepository;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -111,15 +121,26 @@ public class UsersController {
             logger.info("🔐 This endpoint requires ADMIN privileges");
             logger.info("✅ User {} is accessing admin endpoint", userId);
 
-            // Note: In a real application, you would verify the user is an admin
-            // For now, we'll log that this endpoint exists
-            logger.info("📊 Returning all users from database");
+            logger.info("📊 Fetching all users from database...");
+            List<UserDTO> allUsers = userRepository.findAll()
+                    .stream()
+                    .map(user -> {
+                        UserDTO dto = new UserDTO();
+                        dto.setUserId(user.getUserId());
+                        dto.setUsername(user.getUsername());
+                        dto.setEmail(user.getEmail());
+                        dto.setFirstName(user.getFirstName());
+                        dto.setLastName(user.getLastName());
+                        dto.setCreatedAt(user.getCreatedAt());
+                        return dto;
+                    })
+                    .toList();
+
+            logger.info("✅ Found {} users in database", allUsers.size());
+            logger.info("📋 Users: {}", allUsers.stream().map(UserDTO::getUsername).toList());
             logger.info("========== GET ALL USERS - SUCCESS ==========");
 
-            return ResponseEntity.ok(Map.of(
-                "message", "This endpoint would return all users",
-                "note", "Verify user is ADMIN before calling this endpoint"
-            ));
+            return ResponseEntity.ok(allUsers);
         } catch (Exception e) {
             logger.error("❌ Error fetching all users: {}", e.getMessage(), e);
             logger.info("========== GET ALL USERS - ERROR ==========");
@@ -143,13 +164,26 @@ public class UsersController {
             logger.info("🔐 This endpoint requires ADMIN privileges");
             logger.info("✅ User {} is accessing admin endpoint", userId);
 
-            logger.info("📊 Returning all listings from database");
+            logger.info("📊 Fetching all listings from database...");
+            List<ListingDTO> allListings = listingRepository.findAll()
+                    .stream()
+                    .map(listing -> {
+                        ListingDTO dto = new ListingDTO();
+                        dto.setListingId(listing.getListingId());
+                        dto.setOwnerId(listing.getOwnerId());
+                        dto.setAnimalId(listing.getAnimalId());
+                        dto.setStatus(listing.getStatus());
+                        dto.setPrice(listing.getPrice());
+                        dto.setDescription(listing.getDescription());
+                        dto.setCreatedAt(listing.getCreatedAt());
+                        return dto;
+                    })
+                    .toList();
+
+            logger.info("✅ Found {} listings in database", allListings.size());
             logger.info("========== GET ALL LISTINGS - SUCCESS ==========");
 
-            return ResponseEntity.ok(Map.of(
-                "message", "This endpoint would return all listings",
-                "note", "Verify user is ADMIN before calling this endpoint"
-            ));
+            return ResponseEntity.ok(allListings);
         } catch (Exception e) {
             logger.error("❌ Error fetching all listings: {}", e.getMessage(), e);
             logger.info("========== GET ALL LISTINGS - ERROR ==========");
