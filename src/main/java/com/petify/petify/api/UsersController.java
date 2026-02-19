@@ -45,21 +45,18 @@ public class UsersController {
     @GetMapping("/{userId}/pets")
     public ResponseEntity<?> getUserPets(@PathVariable Long userId) {
         logger.info("========== GET USER PETS ENDPOINT ==========");
-        logger.info("📌 User ID: {}", userId);
-
         try {
-            logger.info("🔍 Fetching pets for user {}...", userId);
             List<AnimalResponseDTO> pets = petRepository.findByOwnerUserId(userId)
                     .stream()
                     .map(AnimalResponseDTO::new)
                     .toList();
 
-            logger.info("✅ Found {} pets for user {}", pets.size(), userId);
+            logger.info(" Found {} pets for user {}", pets.size(), userId);
             logger.info("========== GET USER PETS - SUCCESS ==========");
             return ResponseEntity.ok(pets);
 
         } catch (Exception e) {
-            logger.error("❌ Error retrieving pets for user {}: {}", userId, e.getMessage(), e);
+            logger.error(" Error retrieving pets for user {}: {}", userId, e.getMessage(), e);
             logger.info("========== GET USER PETS - ERROR ==========");
             return ResponseEntity.status(500)
                     .body(Map.of("error", "Failed to retrieve pets: " + e.getMessage()));
@@ -76,31 +73,24 @@ public class UsersController {
             @RequestHeader("X-User-Id") Long headerUserId,
             @RequestBody CreatePetRequest request) {
         logger.info("========== CREATE PET ENDPOINT HIT ==========");
-        logger.info("Path Variable userId: {}", userId);
-        logger.info("Header X-User-Id: {}", headerUserId);
-        logger.info("Request Body: {}", request);
 
         try {
             logger.info("Verifying user authorization...");
             // Verify the user is creating a pet for themselves
             if (!userId.equals(headerUserId)) {
-                logger.error("❌ AUTHORIZATION FAILED: userId ({}) != headerUserId ({})", userId, headerUserId);
+                logger.error(" AUTHORIZATION FAILED: userId ({}) != headerUserId ({})", userId, headerUserId);
                 return ResponseEntity.status(403)
                         .body(Map.of("error", "You can only create pets for yourself"));
             }
-            logger.info("✅ Authorization passed");
-
-            logger.info("Calling petService.addPet()...");
+            logger.info(" Authorization passed");
             AnimalResponseDTO pet = petService.addPet(userId, request);
-            logger.info("✅ Pet created successfully");
-            logger.info("Returning response...");
             return ResponseEntity.status(HttpStatus.CREATED).body(pet);
         } catch (RuntimeException e) {
-            logger.error("❌ RuntimeException in createPet: {}", e.getMessage(), e);
+            logger.error(" RuntimeException in createPet: {}", e.getMessage(), e);
             return ResponseEntity.badRequest()
                     .body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            logger.error("❌ Unexpected Exception in createPet: {}", e.getMessage(), e);
+            logger.error(" Unexpected Exception in createPet: {}", e.getMessage(), e);
             return ResponseEntity.status(500)
                     .body(Map.of("error", "Failed to create pet: " + e.getMessage()));
         }
@@ -114,14 +104,10 @@ public class UsersController {
     public ResponseEntity<?> getAllUsers(
             @RequestHeader("X-User-Id") Long userId) {
         logger.info("========== GET ALL USERS ENDPOINT (ADMIN) ==========");
-        logger.info("📌 Requesting User ID: {}", userId);
-        logger.info("👤 User Type: ADMIN (required)");
 
         try {
-            logger.info("🔐 This endpoint requires ADMIN privileges");
-            logger.info("✅ User {} is accessing admin endpoint", userId);
-
-            logger.info("📊 Fetching all users from database...");
+            logger.info(" This endpoint requires ADMIN privileges");
+            logger.info(" Fetching all users from database...");
             List<UserDTO> allUsers = userRepository.findAll()
                     .stream()
                     .map(user -> {
@@ -136,13 +122,12 @@ public class UsersController {
                     })
                     .toList();
 
-            logger.info("✅ Found {} users in database", allUsers.size());
-            logger.info("📋 Users: {}", allUsers.stream().map(UserDTO::getUsername).toList());
+            logger.info(" Found {} users in database", allUsers.size());
             logger.info("========== GET ALL USERS - SUCCESS ==========");
 
             return ResponseEntity.ok(allUsers);
         } catch (Exception e) {
-            logger.error("❌ Error fetching all users: {}", e.getMessage(), e);
+            logger.error(" Error fetching all users: {}", e.getMessage(), e);
             logger.info("========== GET ALL USERS - ERROR ==========");
             return ResponseEntity.status(500)
                     .body(Map.of("error", "Failed to retrieve users: " + e.getMessage()));
@@ -157,14 +142,10 @@ public class UsersController {
     public ResponseEntity<?> getAllListings(
             @RequestHeader("X-User-Id") Long userId) {
         logger.info("========== GET ALL LISTINGS ENDPOINT (ADMIN) ==========");
-        logger.info("📌 Requesting User ID: {}", userId);
-        logger.info("👤 User Type: ADMIN (required)");
 
         try {
-            logger.info("🔐 This endpoint requires ADMIN privileges");
-            logger.info("✅ User {} is accessing admin endpoint", userId);
-
-            logger.info("📊 Fetching all listings from database...");
+            logger.info(" This endpoint requires ADMIN privileges");
+            logger.info("Fetching all listings from database...");
             List<ListingDTO> allListings = listingRepository.findAll()
                     .stream()
                     .map(listing -> {
@@ -180,12 +161,12 @@ public class UsersController {
                     })
                     .toList();
 
-            logger.info("✅ Found {} listings in database", allListings.size());
+            logger.info(" Found {} listings in database", allListings.size());
             logger.info("========== GET ALL LISTINGS - SUCCESS ==========");
 
             return ResponseEntity.ok(allListings);
         } catch (Exception e) {
-            logger.error("❌ Error fetching all listings: {}", e.getMessage(), e);
+            logger.error(" Error fetching all listings: {}", e.getMessage(), e);
             logger.info("========== GET ALL LISTINGS - ERROR ==========");
             return ResponseEntity.status(500)
                     .body(Map.of("error", "Failed to retrieve listings: " + e.getMessage()));

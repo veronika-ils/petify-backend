@@ -5,8 +5,8 @@ import java.util.Objects;
 
 public class FavoriteListingId implements Serializable {
 
-    private Long client;   // MUST match field name in entity: "client"
-    private Long listing;  // MUST match field name in entity: "listing"
+    private Long client;
+    private Long listing;
 
     public FavoriteListingId() {}
 

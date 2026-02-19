@@ -89,37 +89,31 @@ public class ListingsController {
             @RequestHeader("X-User-Id") Long userId,
             @RequestBody Map<String, String> request) {
         logger.info("=== START UPDATE LISTING STATUS ENDPOINT ===");
-        logger.info("📌 Listing ID: {}", listingId);
-        logger.info("👤 User ID: {}", userId);
-        logger.info("📋 Request body: {}", request);
 
         try {
             String status = request.get("status");
-            logger.info("🔄 New Status requested: {}", status);
+            logger.info(" New Status requested: {}", status);
 
             if (status == null || status.isEmpty()) {
-                logger.error("❌ Status is null or empty");
+                logger.error(" Status is null or empty");
                 return ResponseEntity.badRequest()
                     .body(Map.of("error", "status is required"));
             }
 
-            logger.info("✅ Status validation passed");
-            logger.info("🔄 Calling listingService.updateListingStatus({}, {}, {})", listingId, status, userId);
+            logger.info(" Status validation passed");
             ListingDTO listing = listingService.updateListingStatus(listingId, status, userId);
 
-            logger.info("✅ Listing status updated successfully");
-            logger.info("📊 Updated Listing - ID: {}, New Status: {}", listing.getListingId(), listing.getStatus());
             logger.info("=== END UPDATE LISTING STATUS ENDPOINT - SUCCESS ===");
             return ResponseEntity.ok(listing);
         } catch (RuntimeException e) {
-            logger.error("❌ RuntimeException occurred: {}", e.getMessage());
-            logger.error("📋 Stack trace:", e);
+            logger.error(" RuntimeException occurred: {}", e.getMessage());
+            logger.error(" Stack trace:", e);
             logger.info("=== END UPDATE LISTING STATUS ENDPOINT - ERROR ===");
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            logger.error("❌ Unexpected exception occurred: {}", e.getMessage());
-            logger.error("📋 Stack trace:", e);
+            logger.error(" Unexpected exception occurred: {}", e.getMessage());
+            logger.error(" Stack trace:", e);
             logger.info("=== END UPDATE LISTING STATUS ENDPOINT - ERROR ===");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of("error", "Failed to update listing status: " + e.getMessage()));

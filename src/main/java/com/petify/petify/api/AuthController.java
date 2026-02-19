@@ -54,7 +54,6 @@ public class AuthController {
         }
     }
 
-
     /**
      * Get all users
      * GET /api/auth/users
@@ -68,6 +67,4 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
-
-
 }

@@ -92,24 +92,20 @@ public class ReviewController {
             @PathVariable Long reviewId,
             @RequestHeader("X-User-Id") Long userId) {
         logger.info("=== START DELETE REVIEW ENDPOINT ===");
-        logger.info("📌 Received DELETE request for review: {}", reviewId);
-        logger.info("👤 User ID from header: {}", userId);
 
         try {
-            logger.info("🔄 Calling reviewService.deleteReview({}, {})", reviewId, userId);
             reviewService.deleteReview(reviewId, userId);
-            logger.info("✅ Review {} successfully marked as deleted", reviewId);
             logger.info("=== END DELETE REVIEW ENDPOINT - SUCCESS ===");
             return ResponseEntity.noContent().build();
         } catch (RuntimeException e) {
-            logger.error("❌ RuntimeException occurred: {}", e.getMessage());
-            logger.error("📋 Stack trace:", e);
+            logger.error(" RuntimeException occurred: {}", e.getMessage());
+            logger.error(" Stack trace:", e);
             logger.info("=== END DELETE REVIEW ENDPOINT - ERROR ===");
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            logger.error("❌ Unexpected exception occurred: {}", e.getMessage());
-            logger.error("📋 Stack trace:", e);
+            logger.error(" Unexpected exception occurred: {}", e.getMessage());
+            logger.error(" Stack trace:", e);
             logger.info("=== END DELETE REVIEW ENDPOINT - ERROR ===");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Failed to delete review: " + e.getMessage()));

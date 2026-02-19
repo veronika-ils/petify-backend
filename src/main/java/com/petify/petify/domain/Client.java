@@ -13,7 +13,7 @@ public class Client {
 
     @OneToOne(optional = false)
     @MapsId
-    @JoinColumn(name = "user_id") // FK column in clients
+    @JoinColumn(name = "user_id")
     private User user;
 
     @Column(name = "is_blocked", nullable = false)

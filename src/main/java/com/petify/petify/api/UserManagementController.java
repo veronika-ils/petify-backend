@@ -55,7 +55,4 @@ public class UserManagementController {
             return ResponseEntity.notFound().build();
         }
     }
-
-
-
 }
