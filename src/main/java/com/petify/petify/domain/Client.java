@@ -29,6 +29,7 @@ public class Client {
     @JoinColumn(name = "blocked_by")
     private User blockedBy;
 
+
     public Client() {}
 
     public Client(User user) {
