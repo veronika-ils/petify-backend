@@ -78,6 +78,39 @@ public class ListingService {
     }
 
     /**
+     * Get recommended listings for a user based on their favorites
+     * Uses collaborative filtering and content-based filtering
+     */
+    public List<ListingDTO> getRecommendedListings(Long userId) {
+        logger.info("Fetching recommended listings for user ID: {}", userId);
+
+        try {
+            List<Object[]> results = listingRepository.findRecommendedListings(userId);
+            logger.info("Found {} recommended listings", results.size());
+
+            return results.stream()
+                .map(this::mapRecommendationToDTO)
+                .collect(Collectors.toList());
+        } catch (Exception e) {
+            logger.error("Error fetching recommended listings: {}", e.getMessage(), e);
+            return List.of();
+        }
+    }
+
+    /**
+     * Map recommendation query result to ListingDTO
+     */
+    private ListingDTO mapRecommendationToDTO(Object[] result) {
+        // Result columns: listing_id, title, species, breed, location, created_at, cf_score, liked_by_similar_users, content_score, final_score
+        Long listingId = ((Number) result[0]).longValue();
+
+        // Get the actual listing to map to DTO properly
+        return listingRepository.findById(listingId)
+            .map(this::mapToDTO)
+            .orElse(null);
+    }
+
+    /**
      * Get a specific listing by ID
      */
     public ListingDTO getListingById(Long listingId) {

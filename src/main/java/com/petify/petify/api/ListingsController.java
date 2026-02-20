@@ -151,4 +151,22 @@ public class ListingsController {
                 .body(Map.of("error", "Failed to retrieve active listings: " + e.getMessage()));
         }
     }
+
+    /**
+     * Get recommended listings for a user
+     * GET /api/listings/recommendations
+     */
+    @GetMapping("/recommendations")
+    public ResponseEntity<?> getRecommendedListings(@RequestHeader("X-User-Id") Long userId) {
+        try {
+            logger.info("Fetching recommended listings for user ID: {}", userId);
+            List<ListingDTO> listings = listingService.getRecommendedListings(userId);
+            logger.info("Retrieved {} recommended listings", listings.size());
+            return ResponseEntity.ok(listings);
+        } catch (Exception e) {
+            logger.error("Failed to retrieve recommended listings: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("error", "Failed to retrieve recommended listings: " + e.getMessage()));
+        }
+    }
 }
