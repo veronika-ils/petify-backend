@@ -80,6 +80,17 @@ public class ListingService {
     }
 
     /**
+     * Get all listings (for admin)
+     */
+    @Transactional(readOnly = true)
+    public List<ListingDTO> getAllListings() {
+        return listingRepository.findAll()
+            .stream()
+            .map(this::mapToDTO)
+            .collect(Collectors.toList());
+    }
+
+    /**
      * Get recommended listings for a user based on their favorites
      * Uses collaborative filtering and content-based filtering
      */

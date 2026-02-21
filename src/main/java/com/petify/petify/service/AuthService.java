@@ -169,10 +169,17 @@ public class AuthService {
      */
     @Transactional(readOnly = true)
     public List<UserDTO> getAllUsers() {
-        return userRepository.findAll()
+        logger.info("===== GET ALL USERS SERVICE =====");
+        List<UserDTO> users = userRepository.findAll()
             .stream()
-            .map(this::mapToDTO)
+            .map(user -> {
+                UserDTO dto = this.mapToDTO(user);
+                logger.debug("✓ Mapped user {} with type: {}", user.getUserId(), dto.getUserType());
+                return dto;
+            })
             .collect(Collectors.toList());
+        logger.info("✓ Successfully mapped {} users", users.size());
+        return users;
     }
 
 
@@ -182,13 +189,30 @@ public class AuthService {
      * Map User entity to UserDTO
      */
     private UserDTO mapToDTO(User user) {
-        return new UserDTO(
+        // Determine user type by checking tables in order: ADMIN -> OWNER -> CLIENT
+        String userType = "CLIENT";
+
+        if (adminRepository.existsById(user.getUserId())) {
+            userType = "ADMIN";
+            logger.debug("✓ User {} is ADMIN", user.getUserId());
+        } else if (ownerRepository.existsById(user.getUserId())) {
+            userType = "OWNER";
+            logger.debug("✓ User {} is OWNER", user.getUserId());
+        } else {
+            logger.debug("✓ User {} is CLIENT", user.getUserId());
+        }
+
+        UserDTO dto = new UserDTO(
             user.getUserId(),
             user.getUsername(),
             user.getEmail(),
             user.getFirstName(),
             user.getLastName(),
-            user.getCreatedAt()
+            user.getCreatedAt(),
+            userType
         );
+
+        logger.debug("✓ Created UserDTO for {} with type: {}", user.getUsername(), userType);
+        return dto;
     }
 }

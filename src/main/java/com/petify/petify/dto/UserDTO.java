@@ -10,6 +10,7 @@ public class UserDTO {
     private String firstName;
     private String lastName;
     private LocalDateTime createdAt;
+    private String userType;
 
     // Constructors
     public UserDTO() {
@@ -23,6 +24,18 @@ public class UserDTO {
         this.firstName = firstName;
         this.lastName = lastName;
         this.createdAt = createdAt;
+        this.userType = "CLIENT"; // Default type
+    }
+
+    public UserDTO(Long userId, String username, String email, String firstName,
+                   String lastName, LocalDateTime createdAt, String userType) {
+        this.userId = userId;
+        this.username = username;
+        this.email = email;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.createdAt = createdAt;
+        this.userType = userType;
     }
 
     // Getters and Setters
@@ -73,5 +86,13 @@ public class UserDTO {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getUserType() {
+        return userType;
+    }
+
+    public void setUserType(String userType) {
+        this.userType = userType;
     }
 }

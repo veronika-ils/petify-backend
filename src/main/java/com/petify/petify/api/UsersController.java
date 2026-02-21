@@ -96,82 +96,82 @@ public class UsersController {
         }
     }
 
-    /**
-     * Get all users (admin only)
-     * GET /api/users/admin/all
-     */
-    @GetMapping("/admin/all")
-    public ResponseEntity<?> getAllUsers(
-            @RequestHeader("X-User-Id") Long userId) {
-        logger.info("========== GET ALL USERS ENDPOINT (ADMIN) ==========");
+//    /**
+//     * Get all users (admin only)
+//     * GET /api/users/admin/all/ok
+//     */
+//    @GetMapping("/admin/all/ok")
+//    public ResponseEntity<?> getAllUsers(
+//            @RequestHeader("X-User-Id") Long userId) {
+//        logger.info("========== GET ALL USERS ENDPOINT (ADMIN) ==========");
+//
+//        try {
+//            logger.info(" This endpoint requires ADMIN privileges");
+//            logger.info(" Fetching all users from database...");
+//            List<UserDTO> allUsers = userRepository.findAll()
+//                    .stream()
+//                    .map(user -> {
+//                        UserDTO dto = new UserDTO();
+//                        dto.setUserId(user.getUserId());
+//                        dto.setUsername(user.getUsername());
+//                        dto.setEmail(user.getEmail());
+//                        dto.setFirstName(user.getFirstName());
+//                        dto.setLastName(user.getLastName());
+//                        dto.setCreatedAt(user.getCreatedAt());
+//                        return dto;
+//                    })
+//                    .toList();
+//
+//            logger.info(" Found {} users in database", allUsers.size());
+//            logger.info("========== GET ALL USERS - SUCCESS ==========");
+//
+//            return ResponseEntity.ok(allUsers);
+//        } catch (Exception e) {
+//            logger.error(" Error fetching all users: {}", e.getMessage(), e);
+//            logger.info("========== GET ALL USERS - ERROR ==========");
+//            return ResponseEntity.status(500)
+//                    .body(Map.of("error", "Failed to retrieve users: " + e.getMessage()));
+//        }
+//    }
 
-        try {
-            logger.info(" This endpoint requires ADMIN privileges");
-            logger.info(" Fetching all users from database...");
-            List<UserDTO> allUsers = userRepository.findAll()
-                    .stream()
-                    .map(user -> {
-                        UserDTO dto = new UserDTO();
-                        dto.setUserId(user.getUserId());
-                        dto.setUsername(user.getUsername());
-                        dto.setEmail(user.getEmail());
-                        dto.setFirstName(user.getFirstName());
-                        dto.setLastName(user.getLastName());
-                        dto.setCreatedAt(user.getCreatedAt());
-                        return dto;
-                    })
-                    .toList();
-
-            logger.info(" Found {} users in database", allUsers.size());
-            logger.info("========== GET ALL USERS - SUCCESS ==========");
-
-            return ResponseEntity.ok(allUsers);
-        } catch (Exception e) {
-            logger.error(" Error fetching all users: {}", e.getMessage(), e);
-            logger.info("========== GET ALL USERS - ERROR ==========");
-            return ResponseEntity.status(500)
-                    .body(Map.of("error", "Failed to retrieve users: " + e.getMessage()));
-        }
-    }
-
-    /**
-     * Get all listings (admin only)
-     * GET /api/users/admin/listings
-     */
-    @GetMapping("/admin/listings")
-    public ResponseEntity<?> getAllListings(
-            @RequestHeader("X-User-Id") Long userId) {
-        logger.info("========== GET ALL LISTINGS ENDPOINT (ADMIN) ==========");
-
-        try {
-            logger.info(" This endpoint requires ADMIN privileges");
-            logger.info("Fetching all listings from database...");
-            List<ListingDTO> allListings = listingRepository.findAll()
-                    .stream()
-                    .map(listing -> {
-                        ListingDTO dto = new ListingDTO();
-                        dto.setListingId(listing.getListingId());
-                        dto.setOwnerId(listing.getOwnerId());
-                        dto.setAnimalId(listing.getAnimalId());
-                        dto.setStatus(listing.getStatus());
-                        dto.setPrice(listing.getPrice());
-                        dto.setDescription(listing.getDescription());
-                        dto.setCreatedAt(listing.getCreatedAt());
-                        return dto;
-                    })
-                    .toList();
-
-            logger.info(" Found {} listings in database", allListings.size());
-            logger.info("========== GET ALL LISTINGS - SUCCESS ==========");
-
-            return ResponseEntity.ok(allListings);
-        } catch (Exception e) {
-            logger.error(" Error fetching all listings: {}", e.getMessage(), e);
-            logger.info("========== GET ALL LISTINGS - ERROR ==========");
-            return ResponseEntity.status(500)
-                    .body(Map.of("error", "Failed to retrieve listings: " + e.getMessage()));
-        }
-    }
+//    /**
+//     * Get all listings (admin only)
+//     * GET /api/users/admin/listings/ok
+//     */
+//    @GetMapping("/admin/listings/ok")
+//    public ResponseEntity<?> getAllListings(
+//            @RequestHeader("X-User-Id") Long userId) {
+//        logger.info("========== GET ALL LISTINGS ENDPOINT (ADMIN) ==========");
+//
+//        try {
+//            logger.info(" This endpoint requires ADMIN privileges");
+//            logger.info("Fetching all listings from database...");
+//            List<ListingDTO> allListings = listingRepository.findAll()
+//                    .stream()
+//                    .map(listing -> {
+//                        ListingDTO dto = new ListingDTO();
+//                        dto.setListingId(listing.getListingId());
+//                        dto.setOwnerId(listing.getOwnerId());
+//                        dto.setAnimalId(listing.getAnimalId());
+//                        dto.setStatus(listing.getStatus());
+//                        dto.setPrice(listing.getPrice());
+//                        dto.setDescription(listing.getDescription());
+//                        dto.setCreatedAt(listing.getCreatedAt());
+//                        return dto;
+//                    })
+//                    .toList();
+//
+//            logger.info(" Found {} listings in database", allListings.size());
+//            logger.info("========== GET ALL LISTINGS - SUCCESS ==========");
+//
+//            return ResponseEntity.ok(allListings);
+//        } catch (Exception e) {
+//            logger.error(" Error fetching all listings: {}", e.getMessage(), e);
+//            logger.info("========== GET ALL LISTINGS - ERROR ==========");
+//            return ResponseEntity.status(500)
+//                    .body(Map.of("error", "Failed to retrieve listings: " + e.getMessage()));
+//        }
+//    }
 
     /**
      * Block/unblock a user (admin only)

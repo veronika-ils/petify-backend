@@ -87,6 +87,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET,"/api/users/*/verified").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/users/verification/top-10").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/listings/recommendations").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/users/admin/all").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/users/admin/listings").permitAll()
 
                         // All other requests require authentication
                         .anyRequest().authenticated()
