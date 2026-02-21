@@ -95,6 +95,7 @@ public class AuthService {
     /**
      * Login user with username and password
      */
+    @Transactional(readOnly = true)
     public AuthResponse login(LoginRequest request) {
         Optional<User> user = userRepository.findByUsername(request.getUsername());
 
@@ -146,6 +147,7 @@ public class AuthService {
     /**
      * Get user by ID
      */
+    @Transactional(readOnly = true)
     public UserDTO getUserById(Long userId) {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new RuntimeException("User not found"));
@@ -155,6 +157,7 @@ public class AuthService {
     /**
      * Get user by username
      */
+    @Transactional(readOnly = true)
     public UserDTO getUserByUsername(String username) {
         User user = userRepository.findByUsername(username)
             .orElseThrow(() -> new RuntimeException("User not found"));
@@ -164,6 +167,7 @@ public class AuthService {
     /**
      * Get all users
      */
+    @Transactional(readOnly = true)
     public List<UserDTO> getAllUsers() {
         return userRepository.findAll()
             .stream()

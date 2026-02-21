@@ -68,7 +68,7 @@ public class FavoritesService {
         return favoriteRepository.findFavoritedListingDTOs(userId);
     }
 
-
+    @Transactional(readOnly = true)
     public boolean isFavorited(Long userId, Long listingId) {
         Client client = clientRepository.findByUserId(userId)
             .orElse(null);

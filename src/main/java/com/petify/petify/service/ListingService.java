@@ -57,6 +57,7 @@ public class ListingService {
     /**
      * Get all listings for a specific owner
      */
+    @Transactional(readOnly = true)
     public List<ListingDTO> getListingsByOwner(Long userId) {
         Owner owner = ownerRepository.findByUserId(userId)
             .orElseThrow(() -> new RuntimeException("Owner not found"));
@@ -70,6 +71,7 @@ public class ListingService {
     /**
      * Get all active listings
      */
+    @Transactional(readOnly = true)
     public List<ListingDTO> getActiveListings() {
         return listingRepository.findByStatus("ACTIVE")
             .stream()
@@ -81,6 +83,7 @@ public class ListingService {
      * Get recommended listings for a user based on their favorites
      * Uses collaborative filtering and content-based filtering
      */
+    @Transactional(readOnly = true)
     public List<ListingDTO> getRecommendedListings(Long userId) {
         logger.info("Fetching recommended listings for user ID: {}", userId);
 
@@ -113,6 +116,7 @@ public class ListingService {
     /**
      * Get a specific listing by ID
      */
+    @Transactional(readOnly = true)
     public ListingDTO getListingById(Long listingId) {
         Listing listing = listingRepository.findById(listingId)
             .orElseThrow(() -> new RuntimeException("Listing not found"));
