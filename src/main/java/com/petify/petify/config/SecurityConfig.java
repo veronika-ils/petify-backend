@@ -68,6 +68,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/listings/*").permitAll()
                         .requestMatchers(HttpMethod.PATCH, "/api/listings/*/status").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/api/listings/*/status").permitAll()
+                        .requestMatchers(HttpMethod.PATCH,"/api/users/admin/*/block").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/api/users/admin/*/block").permitAll()
 
                         // Protected user endpoints
                         .requestMatchers(HttpMethod.GET, "/api/users/*").permitAll()

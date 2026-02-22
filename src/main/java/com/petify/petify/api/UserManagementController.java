@@ -1,7 +1,9 @@
 package com.petify.petify.api;
 
+import com.petify.petify.domain.Client;
 import com.petify.petify.dto.ListingDTO;
 import com.petify.petify.dto.UserDTO;
+import com.petify.petify.repo.ClientRepository;
 import com.petify.petify.service.AuthService;
 import com.petify.petify.service.ListingService;
 import com.petify.petify.service.VerificationService;
@@ -11,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -20,15 +23,16 @@ public class UserManagementController {
 
     private static final Logger logger = LoggerFactory.getLogger(UserManagementController.class);
 
-    // ...existing code...
+    private final AuthService authService;
     private final VerificationService verificationService;
     private final ListingService listingService;
-    private final AuthService authService;
+    private final ClientRepository clientRepository;
 
-    public UserManagementController(AuthService authService, VerificationService verificationService, ListingService listingService) {
+    public UserManagementController(AuthService authService, VerificationService verificationService, ListingService listingService, ClientRepository clientRepository) {
         this.authService = authService;
         this.verificationService = verificationService;
         this.listingService = listingService;
+        this.clientRepository = clientRepository;
     }
 
     @GetMapping
@@ -93,7 +97,7 @@ public class UserManagementController {
             for (int i = 0; i < Math.min(users.size(), 3); i++) {
                 UserDTO user = users.get(i);
                 logger.info("User {}: ID={}, Username={}, UserType={}",
-                    i, user.getUserId(), user.getUsername(), user.getUserType());
+                        i, user.getUserId(), user.getUsername(), user.getUserType());
             }
 
             logger.info("========== RETURNING {} USERS ==========", users.size());
@@ -120,36 +124,36 @@ public class UserManagementController {
 
             // Enrich listings with owner names
             List<Map<String, Object>> enrichedListings = listings.stream()
-                .map(listing -> {
-                    Map<String, Object> map = new java.util.HashMap<>();
-                    map.put("listingId", listing.getListingId());
-                    map.put("animalId", listing.getAnimalId());
-                    map.put("ownerId", listing.getOwnerId());
-                    map.put("price", listing.getPrice());
-                    map.put("status", listing.getStatus());
-                    map.put("description", listing.getDescription());
-                    map.put("createdAt", listing.getCreatedAt());
+                    .map(listing -> {
+                        Map<String, Object> map = new java.util.HashMap<>();
+                        map.put("listingId", listing.getListingId());
+                        map.put("animalId", listing.getAnimalId());
+                        map.put("ownerId", listing.getOwnerId());
+                        map.put("price", listing.getPrice());
+                        map.put("status", listing.getStatus());
+                        map.put("description", listing.getDescription());
+                        map.put("createdAt", listing.getCreatedAt());
 
-                    // Fetch owner name from users table
-                    if (listing.getOwnerId() != null) {
-                        try {
-                            UserDTO owner = authService.getUserById(listing.getOwnerId());
-                            map.put("ownerName", owner.getFirstName() + " " + owner.getLastName());
-                            map.put("ownerUsername", owner.getUsername());
-                            logger.debug("✓ Owner for listing {}: {}", listing.getListingId(), map.get("ownerName"));
-                        } catch (Exception e) {
-                            logger.warn("⚠ Could not fetch owner for listing {}: {}", listing.getListingId(), e.getMessage());
+                        // Fetch owner name from users table
+                        if (listing.getOwnerId() != null) {
+                            try {
+                                UserDTO owner = authService.getUserById(listing.getOwnerId());
+                                map.put("ownerName", owner.getFirstName() + " " + owner.getLastName());
+                                map.put("ownerUsername", owner.getUsername());
+                                logger.debug("✓ Owner for listing {}: {}", listing.getListingId(), map.get("ownerName"));
+                            } catch (Exception e) {
+                                logger.warn("⚠ Could not fetch owner for listing {}: {}", listing.getListingId(), e.getMessage());
+                                map.put("ownerName", "Unknown");
+                                map.put("ownerUsername", "Unknown");
+                            }
+                        } else {
                             map.put("ownerName", "Unknown");
                             map.put("ownerUsername", "Unknown");
                         }
-                    } else {
-                        map.put("ownerName", "Unknown");
-                        map.put("ownerUsername", "Unknown");
-                    }
 
-                    return map;
-                })
-                .collect(java.util.stream.Collectors.toList());
+                        return map;
+                    })
+                    .collect(java.util.stream.Collectors.toList());
 
             logger.info("✓ Enriched {} listings with owner information", enrichedListings.size());
             logger.info("========== RETURNING {} LISTINGS ==========", enrichedListings.size());
@@ -188,6 +192,54 @@ public class UserManagementController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Failed to check verification status: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Block/Unblock user (Admin only)
+     * PATCH /api/users/admin/{userId}/block
+     */
+    @PatchMapping("/admin/{targetUserId}/block")
+    public ResponseEntity<?> blockUser(
+            @PathVariable Long targetUserId,
+            @RequestHeader("X-User-Id") Long adminUserId,
+            @RequestBody Map<String, Object> request) {
+        try {
+            logger.info("========== BLOCK/UNBLOCK USER (ADMIN) ==========");
+            logger.info("Admin ID: {}, Target User ID: {}", adminUserId, targetUserId);
+
+            boolean isBlocked = (Boolean) request.getOrDefault("isBlocked", false);
+            String blockedReason = (String) request.getOrDefault("blockedReason", "");
+
+            // Get the client to update
+            Client client = clientRepository.findById(targetUserId)
+                    .orElseThrow(() -> new RuntimeException("Client not found"));
+
+            if (isBlocked) {
+                logger.info("✓ Blocking user {} with reason: {}", targetUserId, blockedReason);
+                client.setBlocked(true);
+                client.setBlockedReason(blockedReason);
+                client.setBlockedAt(java.time.LocalDateTime.now());
+            } else {
+                logger.info("✓ Unblocking user {}", targetUserId);
+                client.setBlocked(false);
+                client.setBlockedReason("");
+                client.setBlockedAt(null);
+            }
+
+            clientRepository.save(client);
+            logger.info("========== USER {} SUCCESSFULLY {}", targetUserId, isBlocked ? "BLOCKED" : "UNBLOCKED");
+
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", isBlocked ? "User blocked successfully" : "User unblocked successfully",
+                    "userId", targetUserId,
+                    "isBlocked", isBlocked
+            ));
+        } catch (Exception e) {
+            logger.error("❌ Error blocking/unblocking user: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to block/unblock user: " + e.getMessage()));
         }
     }
 }

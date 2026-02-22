@@ -120,6 +120,15 @@ public class AuthService {
 
         logger.info("Password verified successfully for user: {}", foundUser.getUsername());
 
+        // Check if user is blocked (both clients and owners can be blocked)
+        if (clientRepository.existsById(foundUser.getUserId())) {
+            Client client = clientRepository.findById(foundUser.getUserId()).orElse(null);
+            if (client != null && client.isBlocked()) {
+                logger.warn("❌ Login attempt by blocked user: {}", foundUser.getUsername());
+                throw new RuntimeException("Your account has been blocked. Reason: " + (client.getBlockedReason() != null ? client.getBlockedReason() : "No reason provided"));
+            }
+        }
+
         // Determine user type by checking tables in order: ADMIN -> OWNER -> CLIENT
         UserType userType = UserType.CLIENT;
 
@@ -191,6 +200,8 @@ public class AuthService {
     private UserDTO mapToDTO(User user) {
         // Determine user type by checking tables in order: ADMIN -> OWNER -> CLIENT
         String userType = "CLIENT";
+        boolean isBlocked = false;
+        String blockedReason = "";
 
         if (adminRepository.existsById(user.getUserId())) {
             userType = "ADMIN";
@@ -198,8 +209,32 @@ public class AuthService {
         } else if (ownerRepository.existsById(user.getUserId())) {
             userType = "OWNER";
             logger.debug("✓ User {} is OWNER", user.getUserId());
+
+            // Check if owner is blocked (via their client record)
+            if (clientRepository.existsById(user.getUserId())) {
+                Client client = clientRepository.findById(user.getUserId()).orElse(null);
+                if (client != null) {
+                    isBlocked = client.isBlocked();
+                    blockedReason = client.getBlockedReason() != null ? client.getBlockedReason() : "";
+                    if (isBlocked) {
+                        logger.debug("⚠ Owner {} is BLOCKED. Reason: {}", user.getUserId(), blockedReason);
+                    }
+                }
+            }
         } else {
             logger.debug("✓ User {} is CLIENT", user.getUserId());
+
+            // Check if client is blocked
+            if (clientRepository.existsById(user.getUserId())) {
+                Client client = clientRepository.findById(user.getUserId()).orElse(null);
+                if (client != null) {
+                    isBlocked = client.isBlocked();
+                    blockedReason = client.getBlockedReason() != null ? client.getBlockedReason() : "";
+                    if (isBlocked) {
+                        logger.debug("⚠ User {} is BLOCKED. Reason: {}", user.getUserId(), blockedReason);
+                    }
+                }
+            }
         }
 
         UserDTO dto = new UserDTO(
@@ -209,10 +244,12 @@ public class AuthService {
             user.getFirstName(),
             user.getLastName(),
             user.getCreatedAt(),
-            userType
+            userType,
+            isBlocked,
+            blockedReason
         );
 
-        logger.debug("✓ Created UserDTO for {} with type: {}", user.getUsername(), userType);
+        logger.debug("✓ Created UserDTO for {} with type: {}, blocked: {}", user.getUsername(), userType, isBlocked);
         return dto;
     }
 }

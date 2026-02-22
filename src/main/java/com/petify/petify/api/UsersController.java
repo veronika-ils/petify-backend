@@ -177,7 +177,7 @@ public class UsersController {
      * Block/unblock a user (admin only)
      * PATCH /api/users/admin/{targetUserId}/block
      */
-    @PatchMapping("/admin/{targetUserId}/block")
+    @PatchMapping("/admin/{targetUserId}/block/ok")
     public ResponseEntity<?> blockUser(
             @PathVariable Long targetUserId,
             @RequestHeader("X-User-Id") Long adminUserId,

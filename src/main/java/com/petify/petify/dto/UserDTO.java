@@ -11,6 +11,8 @@ public class UserDTO {
     private String lastName;
     private LocalDateTime createdAt;
     private String userType;
+    private boolean isBlocked;
+    private String blockedReason;
 
     // Constructors
     public UserDTO() {
@@ -25,6 +27,8 @@ public class UserDTO {
         this.lastName = lastName;
         this.createdAt = createdAt;
         this.userType = "CLIENT"; // Default type
+        this.isBlocked = false;
+        this.blockedReason = "";
     }
 
     public UserDTO(Long userId, String username, String email, String firstName,
@@ -36,6 +40,21 @@ public class UserDTO {
         this.lastName = lastName;
         this.createdAt = createdAt;
         this.userType = userType;
+        this.isBlocked = false;
+        this.blockedReason = "";
+    }
+
+    public UserDTO(Long userId, String username, String email, String firstName,
+                   String lastName, LocalDateTime createdAt, String userType, boolean isBlocked, String blockedReason) {
+        this.userId = userId;
+        this.username = username;
+        this.email = email;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.createdAt = createdAt;
+        this.userType = userType;
+        this.isBlocked = isBlocked;
+        this.blockedReason = blockedReason;
     }
 
     // Getters and Setters
@@ -94,5 +113,21 @@ public class UserDTO {
 
     public void setUserType(String userType) {
         this.userType = userType;
+    }
+
+    public boolean isBlocked() {
+        return isBlocked;
+    }
+
+    public void setBlocked(boolean blocked) {
+        isBlocked = blocked;
+    }
+
+    public String getBlockedReason() {
+        return blockedReason;
+    }
+
+    public void setBlockedReason(String blockedReason) {
+        this.blockedReason = blockedReason;
     }
 }
